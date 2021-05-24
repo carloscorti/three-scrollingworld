@@ -5,6 +5,7 @@
 <script>
 import * as Three from "three";
 import * as dat from "dat.gui";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export default {
   name: "ThreeComponent",
@@ -14,6 +15,7 @@ export default {
       scene: null,
       renderer: null,
       mesh: null,
+      orbitControl: null,
     };
   },
   methods: {
@@ -21,8 +23,13 @@ export default {
       let container = this.$refs.world;
       // let container = document.getElementById('container');
 
+      // Debug
       const gui = new dat.GUI();
 
+      /**
+       * Camera
+       */
+      // Base camera
       this.camera = new Three.PerspectiveCamera(
         75,
         container.clientWidth / container.clientHeight,
@@ -33,19 +40,24 @@ export default {
 
       this.scene = new Three.Scene();
 
-      // let geometry = new Three.BoxGeometry(0.2, 0.2, 0.2);
+      // Objects
       let geometry = new Three.TorusGeometry(10, 3, 16, 100);
-      // let material = new Three.MeshNormalMaterial();
-      // let material = new Three.MeshBasicMaterial({color: 0xFF6347, wireframe: true});
+
+      // Materials
       let material = new Three.MeshStandardMaterial();
       material.color = new Three.Color(0xff6347);
       material.roughness = 0.2;
       material.metalness = 0.7;
-      // material.wireframe = true
 
+      // Mesh
       this.mesh = new Three.Mesh(geometry, material);
       this.scene.add(this.mesh);
 
+      // Grid helper
+      const gridHelper = new Three.GridHelper(200, 50);
+      this.scene.add(gridHelper);
+
+      // Lights
       const ambientLight = new Three.AmbientLight(0xffffff, 1);
       this.scene.add(ambientLight);
 
@@ -100,17 +112,33 @@ export default {
       //   .max(10)
       //   .step(0.01);
 
+      /**
+       * Renderer
+       */
       // this.renderer = new Three.WebGLRenderer({antialias: true});
       this.renderer = new Three.WebGLRenderer();
       // this.renderer.setPixelRatio(window.devicePixelRatio) ??--??--??
       this.renderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(this.renderer.domElement);
+
+      // Orbit control
+      this.orbitControl = new OrbitControls(
+        this.camera,
+        this.renderer.domElement
+      );
+      this.scene.add(this.orbitControl);
     },
+
+    /**
+     * Animate
+     */
     animate: function() {
       requestAnimationFrame(this.animate);
       this.mesh.rotation.x += 0.01;
       this.mesh.rotation.y += 0.005;
       this.mesh.rotation.z += 0.01;
+
+      this.orbitControl.update();
       this.renderer.render(this.scene, this.camera);
     },
   },
