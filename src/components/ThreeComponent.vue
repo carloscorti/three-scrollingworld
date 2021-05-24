@@ -118,6 +118,7 @@ export default {
       // this.renderer = new Three.WebGLRenderer({antialias: true});
       this.renderer = new Three.WebGLRenderer();
       // this.renderer.setPixelRatio(window.devicePixelRatio) ??--??--??
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       this.renderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(this.renderer.domElement);
 
@@ -126,7 +127,10 @@ export default {
         this.camera,
         this.renderer.domElement
       );
-      this.scene.add(this.orbitControl);
+
+      Array(200)
+        .fill()
+        .forEach(this.addStar);
     },
 
     /**
@@ -140,6 +144,20 @@ export default {
 
       this.orbitControl.update();
       this.renderer.render(this.scene, this.camera);
+    },
+
+    addStar: function() {
+      const geometry = new Three.SphereGeometry(0.25, 24, 24);
+      const material = new Three.MeshStandardMaterial({ color: 0xffffff });
+      const star = new Three.Mesh(geometry, material);
+
+      const [x, y, z] = Array(3)
+        .fill()
+        .map(() => Three.MathUtils.randFloatSpread(100));
+
+      star.position.set(x, y, z);
+
+      this.scene.add(star);
     },
   },
   mounted() {
