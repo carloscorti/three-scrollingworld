@@ -6,6 +6,7 @@
 import * as Three from "three";
 import * as dat from "dat.gui";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+// import space from "../assets/space.jpg";
 
 export default {
   name: "ThreeComponent",
@@ -38,10 +39,57 @@ export default {
       );
       this.camera.position.z = 30;
 
+      // Scene
       this.scene = new Three.Scene();
+
+      // Texture loader
+      const textureLoader = new Three.TextureLoader();
 
       // Objects
       let geometry = new Three.TorusGeometry(10, 3, 16, 100);
+
+      // Avatar object
+      const avatar = new Three.BoxGeometry(3, 3, 3);
+
+      // Moon object
+      const moon = new Three.SphereGeometry(3, 32, 32);
+
+      // Avatar texture
+      const avatarTexture = textureLoader.load(require("../assets/cube.jpg"));
+
+      // Moon texture
+      const moonTexture = textureLoader.load(require("../assets/moon.jpg"));
+      const moonNormalTexture = textureLoader.load(
+        require("../assets/normal.jpg")
+      );
+
+      // Avatar material
+      const avatarMaterial = new Three.MeshBasicMaterial({
+        map: avatarTexture,
+      });
+
+      // Moon material
+      const moonMaterial = new Three.MeshStandardMaterial({
+        map: moonTexture,
+        normalMap: moonNormalTexture,
+      });
+
+      // const moonHelper = gui.addFolder("moon");
+      // moonHelper
+      //   .add(moon.position, "x")
+      //   .min(-6)
+      //   .max(6)
+      //   .step(0.01);
+      // moonHelper
+      //   .add(moon.position, "y")
+      //   .min(-10)
+      //   .max(10)
+      //   .step(0.01);
+      // moonHelper
+      //   .add(moon.position, "z")
+      //   .min(-30)
+      //   .max(30)
+      //   .step(0.01);
 
       // Materials
       let material = new Three.MeshStandardMaterial();
@@ -52,6 +100,31 @@ export default {
       // Mesh
       this.mesh = new Three.Mesh(geometry, material);
       this.scene.add(this.mesh);
+
+      const avatarMesh = new Three.Mesh(avatar, avatarMaterial);
+      this.scene.add(avatarMesh);
+
+      const moonMesh = new Three.Mesh(moon, moonMaterial);
+      moonMesh.position.set(-20, 20, 6);
+      // moonMesh.position.set(0, 0, 0);
+      this.scene.add(moonMesh);
+
+      const moonHelper = gui.addFolder("moon");
+      moonHelper
+        .add(moonMesh.position, "x")
+        .min(-20)
+        .max(20)
+        .step(0.01);
+      moonHelper
+        .add(moonMesh.position, "y")
+        .min(-20)
+        .max(20)
+        .step(0.01);
+      moonHelper
+        .add(moonMesh.position, "z")
+        .min(-30)
+        .max(30)
+        .step(0.01);
 
       // Grid helper
       const gridHelper = new Three.GridHelper(200, 50);
@@ -131,6 +204,14 @@ export default {
       Array(200)
         .fill()
         .forEach(this.addStar);
+
+      // Scene background
+      // const spaceTexture = new Three.TextureLoader().load(space);
+      const spaceTexture = textureLoader.load(require("../assets/space.jpg"));
+      // const spaceTexture = new Three.TextureLoader().load(
+      //   "https://images.pexels.com/photos/1205301/pexels-photo-1205301.jpeg"
+      // );
+      this.scene.background = spaceTexture;
     },
 
     /**
